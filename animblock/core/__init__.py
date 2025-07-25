@@ -1,21 +1,15 @@
-from core.Input import *
-from core.Base import *
-
-from core.Uniform import *
-
-from core.Object3D import *
-from core.Mesh import *
-from core.Scene import *
-from core.Fog import *
-
-from core.FirstPersonController import *
-from core.OrbitController import *
-
-from core.OpenGLUtils import *
-from core.Renderer import *
-from core.RenderTarget import *
-
-from core.TextImage import *
-from core.Sprite import *
-
-from core.ParticleEngine import *
+from .Base import *
+from .FirstPersonController import *
+from .Fog import *
+from .Input import *
+from .Mesh import *
+from .Object3D import *
+from .OpenGLUtils import *
+from .OrbitController import *
+from .ParticleEngine import *
+from .Renderer import *
+from .RenderTarget import *
+from .Scene import *
+from .Sprite import *
+from .TextImage import *
+from .Uniform import *

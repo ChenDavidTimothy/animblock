@@ -1,7 +1,7 @@
 import glfw
 
-class Input(object):
 
+class Input:
     def __init__(self):
         self.keyDownList = set()
         self.keyPressedList = set()

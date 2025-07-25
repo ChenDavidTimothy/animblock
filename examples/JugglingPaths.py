@@ -1,13 +1,13 @@
-from core import *
-from cameras import *
-from lights import AmbientLight, DirectionalLight
-from geometry import *
-from material import *
-from mathutils import *
-from helpers import *
+from animblock.core import *
+from animblock.cameras import *
+from animblock.lights import AmbientLight, DirectionalLight
+from animblock.geometry import *
+from animblock.material import *
+from animblock.mathutils import *
+from animblock.helpers import *
 
 class JugglingPaths(Base):
-    
+
     def initialize(self):
 
         self.setWindowTitle('Juggling Paths')
@@ -16,7 +16,7 @@ class JugglingPaths(Base):
         self.renderer = Renderer()
         self.renderer.setViewportSize(800,800)
         self.renderer.setClearColor(0.25, 0.25, 0.25)
-        
+
         self.scene = Scene()
 
         self.camera = PerspectiveCamera()
@@ -30,7 +30,7 @@ class JugglingPaths(Base):
         starTexture  = OpenGLUtils.initializeTexture("images/stars.jpg")
         stars = Mesh( SphereGeometry(200, 64,64), SurfaceBasicMaterial(texture=starTexture) )
         self.scene.add(stars)
-        
+
         floorMesh = GridHelper(size=10, divisions=10, gridColor=[0.5,0.5,0.5], centerColor=[1,1,1])
         floorMesh.transform.rotateX(-3.14/2, Matrix.LOCAL)
         self.scene.add(floorMesh)
@@ -48,14 +48,14 @@ class JugglingPaths(Base):
         self.handR = Mesh( handGeometry, SurfaceLightMaterial(color=[0.9,0.9,0.9]) )
         self.scene.add(self.handL)
         self.scene.add(self.handR)
-        
+
         ballHeight = 3
         carryDepth = 0.5
         # all throw/catch occurs at y=0
         throwPosition = 2
         catchPosition = 3
         midPosition = (throwPosition + catchPosition)/2
-        
+
         A = [ throwPosition,           0, 0]
         B = [  -midPosition,  ballHeight, 0]
         C = [-catchPosition,  ballHeight, 0]
@@ -68,12 +68,12 @@ class JugglingPaths(Base):
         J = [ catchPosition,           0, 0]
         K = [ catchPosition, -carryDepth, 0]
         L = [   midPosition, -carryDepth, 0]
-        
+
         curve1 = CurveFactory.makeCubicBezier(A, B, C, D)
         curve2 = CurveFactory.makeCubicBezier(D, E, F, G)
         curve3 = CurveFactory.makeCubicBezier(G, H, I, J)
         curve4 = CurveFactory.makeCubicBezier(J, K, L, A)
-        
+
         self.ballCurve = Multicurve( [curve1, curve2, curve3, curve4] )
         self.handCurveL = Multicurve( [CurveFactory.makeLineSegment(G,D), curve2] )
         self.handCurveR = Multicurve( [CurveFactory.makeLineSegment(A,J), curve4] )
@@ -98,11 +98,11 @@ class JugglingPaths(Base):
 
         self.time = 0
 
-        
+
     def update(self):
 
         self.time += self.deltaTime
-        
+
         t1 = self.ballTimeTween.evaluate(self.time)
         p1 = self.ballCurve.getPoint(t1)
         self.ball1.transform.setPosition(p1[0], p1[1], p1[2])
@@ -122,16 +122,15 @@ class JugglingPaths(Base):
         t5 = self.handTimeTween.evaluate(self.time - 1/2*self.orbitTime)
         p5 = self.handCurveL.getPoint(t5)
         self.handL.transform.setPosition(p5[0], p5[1]-0.12, p5[2])
-        
+
         self.cameraControls.update()
 
         if self.input.resize():
             size = self.input.getWindowSize()
             self.camera.setAspectRatio( size["width"]/size["height"] )
             self.renderer.setViewportSize(size["width"], size["height"])
-            
+
         self.renderer.render(self.scene, self.camera)
-                    
+
 # instantiate and run the program
 JugglingPaths().run()
-
