@@ -1,7 +1,4 @@
-from components.Component import *
-
-from components.Shape import *
-
-from components.Sphere import *
-
-from components.Plane import *
+from .Component import *
+from .Plane import *
+from .Shape import *
+from .Sphere import *

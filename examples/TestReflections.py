@@ -1,25 +1,25 @@
 from math import sin, cos
 
-from core import *
-from cameras import *
+from animblock.core import *
+from animblock.cameras import *
 from mathutils import *
-from geometry import *
-from material import *
-from helpers import *
+from animblock.geometry import *
+from animblock.material import *
+from animblock.helpers import *
 
 class TestReflections(Base):
-    
+
     def initialize(self):
 
         self.setWindowTitle('Test Reflections')
         self.setWindowSize(800,800)
-        
+
         self.renderer = Renderer()
         self.renderer.setViewportSize(800,800)
         self.renderer.setClearColor(0.25,0.25,0.25)
 
         self.scene = Scene()
-        
+
         self.camera = PerspectiveCamera()
         self.camera.transform.setPosition(0, 3, 7)
         self.camera.transform.lookAt( 0, 0, 0 )
@@ -48,8 +48,8 @@ class TestReflections(Base):
 
         uniform mat4 projectionMatrix;
         uniform mat4 viewMatrix;
-        uniform mat4 modelMatrix;      
-        
+        uniform mat4 modelMatrix;
+
         void main()
         {
             position = vec3( modelMatrix * vec4(vertexPosition, 1) );
@@ -61,7 +61,7 @@ class TestReflections(Base):
 
         varying vec3 position;
         uniform float width;
-        
+
         //credit to Laur(link: https://www.laurivan.com/rgb-to-hsv-to-rgb-for-shaders/)
         //for the conversion functions
         //functions for conversion from rgb to hsv and back
@@ -70,7 +70,7 @@ class TestReflections(Base):
             vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
             vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
             vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
- 
+
             float d = q.x - min(q.w, q.y);
             float e = 1.0e-10;
             return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
@@ -105,11 +105,11 @@ class TestReflections(Base):
         self.cubeMesh = Mesh(self.cubeGeo,SurfaceBasicMaterial(texture=self.renderTarget.textureID))
         self.scene.add(self.cubeMesh)
 
-        
+
         self.cubeMesh.transform.setPosition(self.cubePosition[0],self.cubePosition[1],
                                             self.cubePosition[2],Matrix.GLOBAL)
-        
-        
+
+
     def update(self):
         self.time += 1/60
 
@@ -118,18 +118,17 @@ class TestReflections(Base):
         #                                    self.cubePosition[2],Matrix.GLOBAL)
         self.cubeMesh.transform.rotateX(0.02,Matrix.LOCAL)
         #self.cubeMesh.transform.rotateY(0.02,Matrix.LOCAL)
-        
+
         if self.input.resize():
             size = self.input.getWindowSize()
             self.camera.setAspectRatio( size["width"]/size["height"] )
             self.renderer.setViewportSize(size["width"], size["height"])
 
-        self.renderer.render(self.scene, self.camera, self.renderTarget)    
+        self.renderer.render(self.scene, self.camera, self.renderTarget)
 
-        
-        
+
+
         self.renderer.render(self.scene, self.camera)
-                    
+
 # instantiate and run the program
 TestReflections().run()
-

@@ -1,11 +1,13 @@
-from core import *
-from material import *
+from ..core import *
+from .LineBasicMaterial import LineBasicMaterial
+
 
 class LineSegmentMaterial(LineBasicMaterial):
-        
-    def __init__(self, color=[1,1,1], alpha=1, lineWidth=4, useVertexColors=False):
+    def __init__(self, color=None, alpha=1, lineWidth=4, useVertexColors=False):
+        if color is None:
+            color = [1, 1, 1]
+        super().__init__(
+            color=color, alpha=alpha, lineWidth=lineWidth, useVertexColors=useVertexColors
+        )
 
-        super().__init__(color=color, alpha=alpha, lineWidth=lineWidth, useVertexColors=useVertexColors)
-        
         self.drawStyle = GL_LINES
-        

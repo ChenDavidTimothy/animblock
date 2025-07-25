@@ -1,19 +1,18 @@
-from material.Material import *
-
-# Surface materials
-from material.SurfaceBasicMaterial import *
-from material.SurfaceLightMaterial import *
-
 # Line materials
-from material.LineBasicMaterial import *
-from material.LineSegmentMaterial import *
-from material.LineDashedMaterial import *
+from .LineBasicMaterial import *
+from .LineDashedMaterial import *
+from .LineSegmentMaterial import *
+from .Material import *
 
 # point materials
-from material.PointBasicMaterial import *
-
-# sprite materials
-from material.SpriteMaterial import *
+from .PointBasicMaterial import *
 
 # rendering shadows
-from material.ShadowMaterial import *
+from .ShadowMaterial import *
+
+# sprite materials
+from .SpriteMaterial import *
+
+# Surface materials
+from .SurfaceBasicMaterial import *
+from .SurfaceLightMaterial import *

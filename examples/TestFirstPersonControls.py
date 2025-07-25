@@ -1,12 +1,12 @@
-from core import *
-from cameras import *
-from geometry import *
-from material import *
-from helpers import *
+from animblock.core import *
+from animblock.cameras import *
+from animblock.geometry import *
+from animblock.material import *
+from animblock.helpers import *
 
 # Note: FirstPersonControls can be attached to any Object3D
 class TestFirstPersonControls(Base):
-    
+
     def initialize(self):
 
         self.setWindowTitle('First Person Controls')
@@ -15,7 +15,7 @@ class TestFirstPersonControls(Base):
         self.renderer = Renderer()
         self.renderer.setViewportSize(800,800)
         self.renderer.setClearColor(0.25, 0.25, 0.25)
-        
+
         self.scene = Scene()
 
         self.camera = PerspectiveCamera()
@@ -27,11 +27,11 @@ class TestFirstPersonControls(Base):
         skyTexture  = OpenGLUtils.initializeTexture("images/skysphere.jpg")
         sky = Mesh( SphereGeometry(200, 64,64), SurfaceBasicMaterial(texture=skyTexture) )
         self.scene.add(sky)
-        
+
         floorMesh = GridHelper(size=20, divisions=100, gridColor=[0,0,0], centerColor=[1,0,0])
         floorMesh.transform.rotateX(-3.14/2, Matrix.LOCAL)
         self.scene.add(floorMesh)
-        
+
     def update(self):
 
         self.cameraControls.update()
@@ -40,9 +40,8 @@ class TestFirstPersonControls(Base):
             size = self.input.getWindowSize()
             self.camera.setAspectRatio( size["width"]/size["height"] )
             self.renderer.setViewportSize(size["width"], size["height"])
-            
+
         self.renderer.render(self.scene, self.camera)
-                    
+
 # instantiate and run the program
 TestFirstPersonControls().run()
-

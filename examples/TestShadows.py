@@ -1,14 +1,14 @@
 from core import Base, Renderer, Scene, RenderTarget, Mesh, OrbitController, OpenGLUtils
 from cameras import PerspectiveCamera
-from lights import AmbientLight, DirectionalLight
+from animblock.lights import AmbientLight, DirectionalLight
 from geometry import QuadGeometry, SphereGeometry, BoxGeometry
-from material import SurfaceBasicMaterial, SurfaceLightMaterial
+from animblock.material import *SurfaceBasicMaterial, SurfaceLightMaterial
 from mathutils import Matrix
 from helpers import DirectionalLightHelper, OrthographicCameraHelper
 import numpy as np
 
 class TestShadows(Base):
-    
+
     def initialize(self):
 
         self.setWindowTitle('Shadows')
@@ -22,8 +22,8 @@ class TestShadows(Base):
         #   to store depth data in a shadowmap texture;
         #   this is indicated by setting shadowMapEnabled to True.
         self.renderer.shadowMapEnabled = True
-        
-        self.scene = Scene() 
+
+        self.scene = Scene()
 
         self.camera = PerspectiveCamera()
         self.camera.transform.setPosition(0, 3, 5)
@@ -32,7 +32,7 @@ class TestShadows(Base):
         self.cameraControls.setSensitivity(zoom_sensitivity=0.05, pan_sensitivity=0.005)
 
         self.scene.add( AmbientLight(strength=0.5) )
-        
+
         # setup directional light that casts shadows
         directionalLight = DirectionalLight(position=[2,2,0], direction=[-2,-1,0])
         directionalLight.enableShadows(strength=0.5)
@@ -45,14 +45,14 @@ class TestShadows(Base):
 
         self.scene.add( DirectionalLightHelper(directionalLight) )
         self.scene.add( OrthographicCameraHelper(directionalLight.shadowCamera) )
-        
+
         gridTexture  = OpenGLUtils.initializeTexture("images/color-grid.png")
 
         geo = QuadGeometry(width=4,height=4)
         mat = SurfaceLightMaterial(texture=gridTexture)
-        
+
         floor = Mesh( geo, mat )
-        floor.transform.rotateX(-3.14/2)        
+        floor.transform.rotateX(-3.14/2)
         floor.setReceiveShadow()
         self.scene.add( floor )
 
@@ -72,7 +72,7 @@ class TestShadows(Base):
         sphere.transform.setPosition(1,2.1,0)
         sphere.setCastShadow()
         self.scene.add( sphere )
-        
+
         self.box = Mesh( BoxGeometry(1,1,1), mat )
         self.box.transform.setPosition(0,1,0)
         self.box.setCastShadow()
@@ -89,9 +89,8 @@ class TestShadows(Base):
             self.renderer.setViewportSize(size["width"], size["height"])
 
         self.box.transform.rotateY(0.005)
-        
+
         self.renderer.render(self.scene, self.camera)
-                    
+
 # instantiate and run the program
 TestShadows().run()
-

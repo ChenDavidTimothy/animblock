@@ -1,18 +1,18 @@
-from core import *
-from cameras import *
-from geometry import *
-from material import *
+from animblock.core import *
+from animblock.cameras import *
+from animblock.geometry import *
+from animblock.material import *
 from mathutils import *
 
 import colorsys
 
 class TestLineMaterials(Base):
-    
+
     def initialize(self):
 
         self.setWindowTitle('Line Materials')
         self.setWindowSize(800,800)
-        
+
         self.renderer = Renderer()
         self.renderer.setViewportSize(800,800)
         self.renderer.setClearColor(0.25,0.25,0.25)
@@ -42,7 +42,7 @@ class TestLineMaterials(Base):
         # vertex colors for most geometries
         rainbowColors = []
         for i in range(256):
-            rainbowColors.append( colorsys.hsv_to_rgb(i/256,1,1) )        
+            rainbowColors.append( colorsys.hsv_to_rgb(i/256,1,1) )
 
         hilbertPoints = Hilbert3D(size=1, iterations=1)
         hilbertGeo = LineGeometry(hilbertPoints)
@@ -59,7 +59,7 @@ class TestLineMaterials(Base):
         hilbertGeoA = LineGeometry(hilbertPoints)
         vertexColorDataA = []
         for i in range( len(hilbertPoints) ):
-            vertexColorDataA.append( colorsys.hsv_to_rgb(i/len(hilbertPoints), 1, 1) )        
+            vertexColorDataA.append( colorsys.hsv_to_rgb(i/len(hilbertPoints), 1, 1) )
         hilbertGeoA.setAttribute("vec3", "vertexColor", vertexColorDataA)
         hilbert2 = Mesh(hilbertGeoA, vertexColorMaterial)
         hilbert2.transform.translate(0,0,-2)
@@ -69,7 +69,7 @@ class TestLineMaterials(Base):
         hilbertGeoD = LineGeometry(hilbertPoints)
         vertexColorDataD = []
         for i in range( len(hilbertPoints) ):
-            vertexColorDataD.append( [hilbertPoints[i][2]*0.5 + 0.5, 0, 1] )        
+            vertexColorDataD.append( [hilbertPoints[i][2]*0.5 + 0.5, 0, 1] )
         hilbertGeoD.setAttribute("vec3", "vertexColor", vertexColorDataD)
         hilbert3 = Mesh(hilbertGeoD, vertexColorMaterial)
         hilbert3.transform.translate(-4,0,-2)
@@ -84,12 +84,12 @@ class TestLineMaterials(Base):
         hilbertGeoB = LineGeometry(hilbertPoints)
         vertexColorDataB = []
         for i in range( len(hilbertPoints) ):
-            vertexColorDataB.append( colorsys.hsv_to_rgb(1, 0, i/len(hilbertPoints)) )        
+            vertexColorDataB.append( colorsys.hsv_to_rgb(1, 0, i/len(hilbertPoints)) )
         hilbertGeoB.setAttribute("vec3", "vertexColor", vertexColorDataB)
         hilbert5 = Mesh(hilbertGeoB, vertexColorMaterial)
         hilbert5.transform.translate(0,0,2)
         self.meshList.append(hilbert5)
-        
+
         # alternate colors
         hilbertGeoC = LineGeometry(hilbertPoints)
         vertexColorDataC = []
@@ -102,19 +102,19 @@ class TestLineMaterials(Base):
         hilbert6 = Mesh(hilbertGeoC, vertexColorMaterial)
         hilbert6.transform.translate(-4,0,2)
         self.meshList.append(hilbert6)
-        
+
         for mesh in self.meshList:
             self.scene.add(mesh)
-        
-        
+
+
     def update(self):
-        
+
         # update camera via keyboard
         # self.cameraControls.update()
 
         # automatically update camera - orbit around scene
         self.camera.transform.rotateY(0.004, Matrix.GLOBAL)
-        
+
         if self.input.resize():
             size = self.input.getWindowSize()
             self.camera.setAspectRatio( size["width"]/size["height"] )
@@ -123,9 +123,8 @@ class TestLineMaterials(Base):
         for mesh in self.meshList:
             mesh.transform.rotateX(0.030, Matrix.LOCAL)
             mesh.transform.rotateY(0.015, Matrix.LOCAL)
-        
+
         self.renderer.render(self.scene, self.camera)
-                    
+
 # instantiate and run the program
 TestLineMaterials().run()
-

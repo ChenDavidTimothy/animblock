@@ -1,12 +1,12 @@
 import pygame
-from core import *
-from cameras import *
-from geometry import *
-from material import *
-from helpers import *
+from animblock.core import *
+from animblock.cameras import *
+from animblock.geometry import *
+from animblock.material import *
+from animblock.helpers import *
 
 class TestParticleEngine(Base):
-    
+
     def initialize(self):
 
         self.setWindowTitle('Particle Engine')
@@ -15,7 +15,7 @@ class TestParticleEngine(Base):
         self.renderer = Renderer()
         self.renderer.setViewportSize(800,800)
         self.renderer.setClearColor(0.25, 0.25, 0.25)
-        
+
         self.scene = Scene()
 
         self.camera = PerspectiveCamera()
@@ -23,7 +23,7 @@ class TestParticleEngine(Base):
         self.camera.transform.lookAt(0, 0, 0)
         self.cameraControls = FirstPersonController(self.input, self.camera)
 
-        
+
         floorMesh = GridHelper(size=10, divisions=10, gridColor=[0,0,0], centerColor=[1,0,0])
         floorMesh.transform.rotateX(-3.14/2, Matrix.LOCAL)
         self.scene.add(floorMesh)
@@ -44,9 +44,9 @@ class TestParticleEngine(Base):
                              particleTexture=particleTexture)
 
         self.engine.transform.translate(0,0,0)
-        
+
         self.scene.add(self.engine)
-        
+
     def update(self):
 
         self.cameraControls.update()
@@ -64,9 +64,8 @@ class TestParticleEngine(Base):
 
 
         self.engine.update( self.deltaTime )
-        
+
         self.renderer.render(self.scene, self.camera)
-                    
+
 # instantiate and run the program
 TestParticleEngine().run()
-

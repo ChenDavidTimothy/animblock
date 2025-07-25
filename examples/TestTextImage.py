@@ -1,11 +1,11 @@
-from core import *
-from cameras import *
-from geometry import *
-from material import *
+from animblock.core import *
+from animblock.cameras import *
+from animblock.geometry import *
+from animblock.material import *
 from lights import *
 
 class TestTextImage(Base):
-    
+
     def initialize(self):
 
         self.setWindowTitle('Text Images and HUD Text')
@@ -14,12 +14,12 @@ class TestTextImage(Base):
         self.renderer = Renderer()
         self.renderer.setViewportSize(600,600)
         self.renderer.setClearColor(0.75,0.75,0.75)
-        
+
         self.scene = Scene()
-        
+
         self.camera = PerspectiveCamera()
         self.camera.transform.setPosition(0, 1, 5)
-        self.camera.transform.lookAt(0, 0, 0)        
+        self.camera.transform.lookAt(0, 0, 0)
         self.cameraControls = FirstPersonController(self.input, self.camera)
 
         self.scene.add( AmbientLight(strength=0.25) )
@@ -33,7 +33,7 @@ class TestTextImage(Base):
         messageTexture = OpenGLUtils.initializeSurface(messageImage.surface)
         lightMaterial = SurfaceLightMaterial( texture=messageTexture )
         self.cube = Mesh( BoxGeometry(), lightMaterial )
-        self.scene.add(self.cube)        
+        self.scene.add(self.cube)
 
         # set up the HUD (heads-up display)
         self.hudScene = Scene()
@@ -46,9 +46,9 @@ class TestTextImage(Base):
         quad = Sprite( SpriteMaterial( size=[hudImage.width, hudImage.height], anchor=[0,0], texture=hudTexture) )
         quad.transform.setPosition(5,5)
         self.hudScene.add( quad )
-        
+
     def update(self):
-        
+
         self.cameraControls.update()
 
         if self.input.resize():
@@ -56,14 +56,13 @@ class TestTextImage(Base):
             self.camera.setAspectRatio( size["width"]/size["height"] )
             self.hudCamera.setViewRegion( left=0, right=size["width"], bottom=0, top=size["height"] )
             self.renderer.setViewportSize(size["width"], size["height"])
-                
+
         self.cube.transform.rotateX(0.005, Matrix.LOCAL)
         self.cube.transform.rotateY(0.01, Matrix.LOCAL)
-        
+
         self.renderer.render(self.scene, self.camera)
 
         self.renderer.render(self.hudScene, self.hudCamera, clearColor=False)
 
 # instantiate and run the program
 TestTextImage().run()
-
