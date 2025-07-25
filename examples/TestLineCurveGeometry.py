@@ -2,7 +2,7 @@ from animblock.core import *
 from animblock.cameras import *
 from animblock.geometry import *
 from animblock.material import *
-from mathutils import *
+from animblock.mathutils import *
 
 import colorsys
 

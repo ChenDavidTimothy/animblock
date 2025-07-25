@@ -1,7 +1,7 @@
 from animblock.core import *
 from animblock.cameras import *
 from animblock.lights import AmbientLight, DirectionalLight
-from mathutils import *
+from animblock.mathutils import *
 from animblock.geometry import *
 from animblock.material import *
 

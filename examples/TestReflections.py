@@ -2,7 +2,7 @@ from math import sin, cos
 
 from animblock.core import *
 from animblock.cameras import *
-from mathutils import *
+from animblock.mathutils import *
 from animblock.geometry import *
 from animblock.material import *
 from animblock.helpers import *
