@@ -1,7 +1,7 @@
 from core import *
 from cameras import *
 from geometry import *
-from material import *
+from ..material import *
 from helpers import *
 from components import *
 from lights import *
@@ -10,7 +10,7 @@ import random
 #NOTE: this test was for internal testing, for a more detailed explanation of what is going on
 #look at TestCollisionDetection
 class TestCollisionsBeta(Base):
-    
+
     def initialize(self):
 
         self.setWindowTitle('Test')
@@ -20,7 +20,7 @@ class TestCollisionsBeta(Base):
         self.renderer.setViewportSize(800,800)
         self.renderer.setClearColor(0.25, 0.25, 0.25)
 
-        
+
         self.scene = Scene()
 
         light = PointLight(position = [0,20,0])
@@ -31,7 +31,7 @@ class TestCollisionsBeta(Base):
         self.camera.transform.lookAt(0, 0, 0)
         self.camera.transform.setPosition(0,1,5)
         self.cameraControls = FirstPersonController(self.input, self.camera)
-        
+
         geometry = SphereGeometry()
         geometry2 = SphereGeometry(radius=5)
         material = SurfaceLightMaterial()
@@ -48,14 +48,14 @@ class TestCollisionsBeta(Base):
         #create a plane, not attached to any object/mesh, just floating in space
         self.plane = Plane(normal = (-1,0,0), offset = 3)
 
-       
 
-        
+
+
         floorMesh = GridHelper(size=10, divisions=10, gridColor=[0,0,0], centerColor=[1,0,0])
         floorMesh.transform.rotateX(-3.14/2, Matrix.LOCAL)
         self.scene.add(floorMesh)
         self.time = 0
-        
+
     def update(self):
 
         self.cameraControls.update()
@@ -68,10 +68,10 @@ class TestCollisionsBeta(Base):
         if(self.Mesh2.componentDict["Sphere"].intersectsPlane(self.plane)):
             print('overlapping')
 
-        
-        
 
-        
+
+
+
 
         if self.input.resize():
             size = self.input.getWindowSize()
@@ -80,9 +80,8 @@ class TestCollisionsBeta(Base):
         if self.input.isMousePressed():
             #launch the mesh
             self.Mesh2.transform.setPosition(-3,0.5,1)
-            
+
         self.renderer.render(self.scene, self.camera)
-                    
+
 # instantiate and run the program
 TestCollisionsBeta().run()
-

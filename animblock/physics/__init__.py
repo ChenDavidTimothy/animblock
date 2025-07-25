@@ -1,1 +1,1 @@
-from .ComponentMesh import *
+from physics.ComponentMesh import *

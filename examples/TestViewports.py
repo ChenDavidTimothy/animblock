@@ -2,43 +2,43 @@ from math import sin, cos, pi
 from core import *
 from cameras import *
 from geometry import *
-from material import *
+from ..material import *
 
 # this demo takes a while to start due to all the text images being generated
 class TestViewports(Base):
-    
+
     def initialize(self):
 
         self.w = 800
         self.h = 800
-        
+
         self.setWindowTitle('Multiple Viewports')
         self.setWindowSize(self.w, self.h)
 
         self.renderer = Renderer()
         self.renderer.setViewportSize(self.w, self.h)
         self.renderer.setClearColor(1,1,1)
-        
+
         self.scene = Scene()
-        
+
         self.camera = PerspectiveCamera()
         self.camera.transform.setPosition(0, 0, 5)
-        
+
         starTexture  = OpenGLUtils.initializeTexture("images/stars.jpg")
         stars = Mesh( SphereGeometry(200, 64,64), SurfaceBasicMaterial(texture=starTexture) )
         self.scene.add(stars)
 
         sunTexture   = OpenGLUtils.initializeTexture("images/sun.jpg")
         earthTexture = OpenGLUtils.initializeTexture("images/earth.jpg")
-        
+
         self.sun = Mesh( SphereGeometry(), SurfaceBasicMaterial(texture=sunTexture) )
         self.scene.add(self.sun)
-        
+
         self.earth = Mesh( SphereGeometry(radius=0.5), SurfaceBasicMaterial(texture=earthTexture) )
         self.scene.add(self.earth)
 
         self.time = 0
-        
+
         # HUD setup
         self.hudScene = Scene()
         self.hudCamera = OrthographicCamera(left=0, right=self.w, bottom=0, top=self.h)
@@ -57,7 +57,7 @@ class TestViewports(Base):
         self.quad2 = Sprite( SpriteMaterial( size=[hudImage.width, hudImage.height], anchor=[0,0], texture=hudTexture2) )
         self.quad2.transform.setPosition(0, self.h/2+2)
         self.hudScene.add( self.quad2 )
-        
+
         hudImage.text = " Right View "
         hudImage.renderImage()
         hudTexture3 = OpenGLUtils.initializeSurface(hudImage.surface)
@@ -71,7 +71,7 @@ class TestViewports(Base):
         self.quad4 = Sprite( SpriteMaterial( size=[hudImage.width, hudImage.height], anchor=[0,0], texture=hudTexture4) )
         self.quad4.transform.setPosition(self.w/2+2, self.h/2+2)
         self.hudScene.add( self.quad4 )
-        
+
     def update(self):
 
         if self.input.resize():
@@ -83,7 +83,7 @@ class TestViewports(Base):
             self.renderer.setViewportSize(size["width"], size["height"])
 
         self.time += self.deltaTime
-        
+
         self.sun.transform.rotateY(0.003, Matrix.LOCAL)
         self.earth.transform.rotateY(0.003, Matrix.LOCAL)
         self.earth.transform.setPosition( 2*cos(self.time), 0, 2*sin(self.time) )
@@ -125,4 +125,3 @@ class TestViewports(Base):
 
 # instantiate and run the program
 TestViewports().run()
-

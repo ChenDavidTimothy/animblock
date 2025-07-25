@@ -2,13 +2,13 @@ from core import *
 from cameras import *
 from lights import AmbientLight, DirectionalLight
 from geometry import *
-from material import *
+from ..material import *
 from helpers import *
 
 import random
 
 class TestLightPerformance(Base):
-    
+
     def initialize(self):
 
         self.setWindowTitle('Lots of Dynamically Lit Cubes')
@@ -19,13 +19,13 @@ class TestLightPerformance(Base):
         self.renderer.setClearColor(0.25, 0.25, 0.25)
 
         # self.renderer.setFog( Fog(startDistance=2, endDistance=20, color=[0,0,0.15]) )
-        
+
         self.scene = Scene()
 
         self.scene.add( AmbientLight(strength=0.25) )
         self.scene.add( DirectionalLight(direction=[-1,-1,0], color=[1,0,0]) )
         self.scene.add( DirectionalLight(direction=[1,1,0], color=[0,0,1]) )
-        
+
         self.camera = PerspectiveCamera()
         self.camera.transform.setPosition(0, 0, 15)
         self.camera.transform.lookAt(0, 0, 0)
@@ -37,7 +37,7 @@ class TestLightPerformance(Base):
         boxTexture = OpenGLUtils.initializeTexture("images/color-grid.png")
         boxMat = SurfaceLightMaterial(texture=boxTexture)
 
-        for i in range(100):            
+        for i in range(100):
             box = Mesh(boxGeo, boxMat)
             box.transform.setPosition(
                 random.uniform(-5,5),random.uniform(-5,5),random.uniform(10,-10))
@@ -45,7 +45,7 @@ class TestLightPerformance(Base):
             box.transform.rotateY( random.uniform(0,6.28), Matrix.LOCAL )
             self.scene.add(box)
             self.boxList.append(box)
-            
+
     def update(self):
 
         self.cameraControls.update()
@@ -58,9 +58,8 @@ class TestLightPerformance(Base):
         for box in self.boxList:
             box.transform.rotateY(0.02, Matrix.LOCAL)
             box.transform.rotateX(0.03, Matrix.LOCAL)
-            
+
         self.renderer.render(self.scene, self.camera)
-                    
+
 # instantiate and run the program
 TestLightPerformance().run()
-

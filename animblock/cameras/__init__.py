@@ -1,6 +1,6 @@
-from .Camera import *
-from .OrthographicCamera import *
-from .PerspectiveCamera import *
+from cameras.Camera import *
+from cameras.PerspectiveCamera import *
+from cameras.OrthographicCamera import *
 
 # shadow camera is an orthographic camera with differently named uniforms
-from .ShadowCamera import *
+from cameras.ShadowCamera import *

@@ -1,13 +1,13 @@
 from core import *
 from cameras import *
 from geometry import *
-from material import *
-from mathutils import *
+from ..material import *
+from ..mathutils import *
 
 import colorsys
 
 class TestLineCurveGeometry(Base):
-    
+
     def initialize(self):
 
         self.setWindowTitle('Line and Curve Geometry')
@@ -16,9 +16,9 @@ class TestLineCurveGeometry(Base):
         self.renderer = Renderer()
         self.renderer.setViewportSize(800,800)
         self.renderer.setClearColor(0.25,0.25,0.25)
-        
+
         self.scene = Scene()
-        
+
         self.camera = PerspectiveCamera()
         self.camera.transform.setPosition(0, 5, 10)
         self.camera.transform.lookAt(0, 0, 0)
@@ -30,7 +30,7 @@ class TestLineCurveGeometry(Base):
         # vertex colors for most geometries
         rainbowColors = []
         for i in range(256):
-            rainbowColors.append( colorsys.hsv_to_rgb(i/256,1,1) )        
+            rainbowColors.append( colorsys.hsv_to_rgb(i/256,1,1) )
 
         # line-based geometry
         linePoints = [[-6,0,-4],[6,0,-4],[6,0,4],[-6,0,4],[-6,0,-4]]
@@ -39,7 +39,7 @@ class TestLineCurveGeometry(Base):
         self.scene.add(lineMesh)
 
         self.meshList = []
-        
+
         # curve-based geometries
         tk2Geo = CurveGeometry( CurveFactory.makeTorusKnot(5,7, 256) )
         tk2Geo.setAttribute("vec3", "vertexColor", rainbowColors)
@@ -52,7 +52,7 @@ class TestLineCurveGeometry(Base):
         helix = Mesh(helixGeo, rainbowMat)
         helix.transform.translate(0,0,-2)
         self.meshList.append(helix)
-        
+
         tk1Geo = CurveGeometry( CurveFactory.makeTorusKnot(2,3, 256) )
         tk1Geo.setAttribute("vec3", "vertexColor", rainbowColors)
         tk1 = Mesh(tk1Geo, rainbowMat)
@@ -76,7 +76,7 @@ class TestLineCurveGeometry(Base):
         n = hilbertGeo.vertexCount
         vertexColorData = []
         for i in range(n):
-            vertexColorData.append( colorsys.hsv_to_rgb(i/n, 1, 1) )        
+            vertexColorData.append( colorsys.hsv_to_rgb(i/n, 1, 1) )
         hilbertGeo.setAttribute("vec3", "vertexColor", vertexColorData)
         hilbertMesh = Mesh(hilbertGeo,rainbowMat)
         hilbertMesh.transform.translate(0,0,2)
@@ -84,16 +84,16 @@ class TestLineCurveGeometry(Base):
 
         for mesh in self.meshList:
             self.scene.add(mesh)
-        
+
 
     def update(self):
-        
+
         # update camera via keyboard
         # self.cameraControls.update()
         # -or-
         # automatically update camera - orbit around scene
         self.camera.transform.rotateY(0.004, Matrix.GLOBAL)
-        
+
         if self.input.resize():
             size = self.input.getWindowSize()
             self.camera.setAspectRatio( size["width"]/size["height"] )
@@ -102,9 +102,8 @@ class TestLineCurveGeometry(Base):
         for mesh in self.meshList:
             mesh.transform.rotateX(0.030, Matrix.LOCAL)
             mesh.transform.rotateY(0.015, Matrix.LOCAL)
-        
+
         self.renderer.render(self.scene, self.camera)
-                    
+
 # instantiate and run the program
 TestLineCurveGeometry().run()
-

@@ -1,12 +1,12 @@
 from core import *
 from cameras import *
 from lights import AmbientLight, DirectionalLight
-from mathutils import *
+from ..mathutils import *
 from geometry import *
-from material import *
+from ..material import *
 
 class TestSurfaceGeometry(Base):
-    
+
     def initialize(self):
 
         self.setWindowTitle('Surface Geometry')
@@ -15,9 +15,9 @@ class TestSurfaceGeometry(Base):
         self.renderer = Renderer()
         self.renderer.setViewportSize(800,800)
         self.renderer.setClearColor(0.25,0.25,0.25)
-        
+
         self.scene = Scene()
-        
+
         self.camera = PerspectiveCamera()
         self.camera.transform.setPosition(0, 9, 12)
         self.camera.transform.lookAt(0, 0, 0)
@@ -25,14 +25,14 @@ class TestSurfaceGeometry(Base):
 
         self.scene.add( AmbientLight(strength=0.25) )
         self.scene.add( DirectionalLight(direction=[-1,-1,-1]) )
-        
+
         gridTexture  = OpenGLUtils.initializeTexture("images/color-grid.png")
         gridMaterial = SurfaceLightMaterial(texture=gridTexture)
 
         self.meshList = []
-        
+
         # pyramid, cone, cylinder, cylinder
-        
+
         pyramid = Mesh( PyramidGeometry(numberSides=4), gridMaterial )
         pyramid.transform.translate(-4.5, 0, 4.5, Matrix.LOCAL)
         self.meshList.append(pyramid)
@@ -48,13 +48,13 @@ class TestSurfaceGeometry(Base):
         cylinder = Mesh( CylinderGeometry(), gridMaterial )
         cylinder.transform.translate(4.5, 0, 4.5, Matrix.LOCAL)
         self.meshList.append(cylinder)
-        
+
         # Octahedron, Icosahedron, Prism, Cube
-        
+
         octa = Mesh( OctahedronGeometry(), gridMaterial )
         octa.transform.translate(-4.5, 0, 1.5, Matrix.LOCAL)
         self.meshList.append(octa)
-        
+
         icosa = Mesh( IcosahedronGeometry(), gridMaterial )
         icosa.transform.translate(-1.5, 0, 1.5, Matrix.LOCAL)
         self.meshList.append(icosa)
@@ -66,9 +66,9 @@ class TestSurfaceGeometry(Base):
         cube = Mesh( BoxGeometry(), gridMaterial )
         cube.transform.translate(4.5, 0, 1.5, Matrix.LOCAL)
         self.meshList.append(cube)
-        
+
         # Circle, Ring, Hexagon, Quad
-        
+
         circle = Mesh( CircleGeometry(), gridMaterial )
         circle.transform.translate(-4.5, 0, -1.5, Matrix.LOCAL)
         self.meshList.append(circle)
@@ -86,7 +86,7 @@ class TestSurfaceGeometry(Base):
         self.meshList.append(quad)
 
         # Sphere, Torus, Tube(Helix), Tube(Knot)
-        
+
         sphere = Mesh( SphereGeometry(), gridMaterial )
         sphere.transform.translate(-4.5, 0, -4.5, Matrix.LOCAL)
         self.meshList.append(sphere)
@@ -107,8 +107,8 @@ class TestSurfaceGeometry(Base):
 
         for mesh in self.meshList:
             self.scene.add(mesh)
-        
-        
+
+
     def update(self):
 
         # update camera via keyboard
@@ -116,7 +116,7 @@ class TestSurfaceGeometry(Base):
         # -or-
         # automatically update camera - orbit around scene
         self.camera.transform.rotateY(0.004, Matrix.GLOBAL)
-        
+
         if self.input.resize():
             size = self.input.getWindowSize()
             self.camera.setAspectRatio( size["width"]/size["height"] )
@@ -125,9 +125,8 @@ class TestSurfaceGeometry(Base):
         for mesh in self.meshList:
             mesh.transform.rotateX(0.030, Matrix.LOCAL)
             mesh.transform.rotateY(0.015, Matrix.LOCAL)
-        
+
         self.renderer.render(self.scene, self.camera)
-                    
+
 # instantiate and run the program
 TestSurfaceGeometry().run()
-

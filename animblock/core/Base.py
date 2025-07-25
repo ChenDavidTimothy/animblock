@@ -1,13 +1,12 @@
-import time
-
 import glfw
 import OpenGL.GL as gl
+import time
 from PIL import Image
 
 from core import Input
 
+class Base(object):
 
-class Base:
     def __init__(self):
         # Initialize GLFW
         if not glfw.init():
@@ -42,11 +41,11 @@ class Base:
 
         # To store window dimensions
         self.window_width, self.window_height = glfw.get_window_size(self.window)
-
-        # Renderer
-        self.renderer = None
-        self.camera = None
-        self.scene = None
+        
+        # Renderer 
+        self.renderer = None  
+        self.camera = None  
+        self.scene = None  
 
     def setWindowTitle(self, text):
         glfw.set_window_title(self.window, text)
@@ -57,26 +56,24 @@ class Base:
         glfw.set_window_size(self.window, width, height)
 
         self.onWindowSizeChanged(self.window, width, height)
-
+    
     def onWindowSizeChanged(self, window, width, height):
         self.window_width = width
         self.window_height = height
-
+        
         # Get actual framebuffer size (important for high-DPI displays)
         fb_width, fb_height = glfw.get_framebuffer_size(window)
-
+        
         # Set OpenGL viewport to match the framebuffer size
         gl.glViewport(0, 0, fb_width, fb_height)
-
+        
         if self.renderer:
             self.renderer.setViewportSize(fb_width, fb_height)
-
+        
         if self.camera:
             aspect_ratio = width / float(height)  # Use window dimensions for aspect ratio
-            self.camera.setPerspective(
-                self.camera.fov, aspect_ratio, self.camera.near, self.camera.far
-            )
-
+            self.camera.setPerspective(self.camera.fov, aspect_ratio, self.camera.near, self.camera.far)
+    
     def initialize(self):
         pass
 
@@ -88,7 +85,7 @@ class Base:
 
     def run(self):
         self.initialize()
-
+        
         while not glfw.window_should_close(self.window) and self.running:
             # Calculate delta time
             current_time = time.time()
