@@ -1,7 +1,7 @@
 from core import *
 from cameras import *
 from geometry import *
-from ..material import *
+from material import *
 from helpers import *
 from components import *
 from physics import *
@@ -9,7 +9,7 @@ from lights import *
 import random
 
 class TestCollisionDetection(Base):
-
+    
     def initialize(self):
 
         self.setWindowTitle('Test')
@@ -19,7 +19,7 @@ class TestCollisionDetection(Base):
         self.renderer.setViewportSize(800,800)
         self.renderer.setClearColor(0.25, 0.25, 0.25)
 
-
+        
         self.scene = Scene()
 
         light = PointLight(position = [0,20,0])
@@ -53,12 +53,12 @@ class TestCollisionDetection(Base):
             #NOTE: when manually updating transform, make sure to also change bounding circle location, or errors can happen
             self.scene.add(self.meshList[x])
 
-
+        
         floorMesh = GridHelper(size=10, divisions=10, gridColor=[0,0,0], centerColor=[1,0,0])
         floorMesh.transform.rotateX(-3.14/2, Matrix.LOCAL)
         self.scene.add(floorMesh)
         self.time = 0
-
+        
     def update(self):
 
         self.cameraControls.update()
@@ -67,7 +67,7 @@ class TestCollisionDetection(Base):
         #check for collisions with all of the meshes
         for x in range(25):
             mesh = self.meshList[x]
-
+            
             if mesh.overlaps(self.Mesh1):
                 self.Mesh1.preventOverlap(mesh)
             for y in range(25):
@@ -80,16 +80,17 @@ class TestCollisionDetection(Base):
             mesh.transform.translate(0,-1/60.0*5,0)
             if mesh.transform.getPosition()[1] < -10:
                 mesh.transform.setPosition(random.randint(-5,5),20,random.randint(-5,5))
+            
 
-
-
+        
 
         if self.input.resize():
             size = self.input.getWindowSize()
             self.camera.setAspectRatio( size["width"]/size["height"] )
             self.renderer.setViewportSize(size["width"], size["height"])
-
+            
         self.renderer.render(self.scene, self.camera)
-
+                    
 # instantiate and run the program
 TestCollisionDetection().run()
+

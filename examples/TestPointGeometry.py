@@ -3,29 +3,29 @@ import random as rand
 from core import *
 from cameras import *
 from geometry import *
-from ..material import *
+from material import *
 import colorsys
 
 class TestPointGeometry(Base):
-
+    
     def initialize(self):
 
         self.setWindowTitle('Point Geometry and Materials')
         self.setWindowSize(800,800)
-
+        
         self.renderer = Renderer()
         self.renderer.setViewportSize(800,800)
         self.renderer.setClearColor(0.25,0.25,0.25)
 
         self.scene = Scene()
-
+        
         self.camera = PerspectiveCamera()
         self.cameraControls = FirstPersonController(self.input, self.camera)
-
+        
         pointTexture  = OpenGLUtils.initializeTexture("images/particle-star.png")
 
         gridTexture  = OpenGLUtils.initializeTexture("images/color-grid.png")
-        gridMaterial = SurfaceBasicMaterial(texture=gridTexture)
+        gridMaterial = SurfaceBasicMaterial(texture=gridTexture)        
         floorMesh = Mesh( QuadGeometry(10,10,1,1), gridMaterial )
         floorMesh.transform.rotateX(-3.14/2, Matrix.LOCAL)
         self.scene.add(floorMesh)
@@ -45,7 +45,7 @@ class TestPointGeometry(Base):
             vertexPositionData.append( point )
             color = colorsys.hsv_to_rgb(i/5000,1,1)
             vertexColorData.append( color )
-
+        
         pointGeo = PointGeometry( vertexPositionData )
         pointGeo.setAttribute("vec3", "vertexColor", vertexColorData)
         pointMat = PointBasicMaterial(texture=pointTexture, size=0.1, useVertexColors=True)
@@ -54,9 +54,9 @@ class TestPointGeometry(Base):
         self.scene.add(self.pointMesh)
 
         self.camera.transform.setPosition(0, 2, 7)
-
+        
     def update(self):
-
+        
         self.cameraControls.update()
 
         if self.input.resize():
@@ -65,8 +65,9 @@ class TestPointGeometry(Base):
             self.renderer.setViewportSize(size["width"], size["height"])
 
         self.pointMesh.transform.rotateY(0.005, Matrix.LOCAL)
-
+        
         self.renderer.render(self.scene, self.camera)
-
+                    
 # instantiate and run the program
 TestPointGeometry().run()
+

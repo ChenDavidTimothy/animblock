@@ -3,12 +3,12 @@ import pygame
 from core import *
 from cameras import *
 from geometry import *
-from ..material import *
+from material import *
 from helpers import *
-from ..mathutils import *
+from mathutils import *
 
 class TestMandlebrot(Base):
-
+    
     def initialize(self):
 
         self.setWindowTitle('Mandlebrot set')
@@ -17,11 +17,11 @@ class TestMandlebrot(Base):
         self.renderer = Renderer()
         self.renderer.setViewportSize(640,640)
         self.renderer.setClearColor(0.25, 0.25, 0.25)
-
+        
         self.scene = Scene()
 
         self.camera = OrthographicCamera()
-
+        
         vsCode = """
         in vec3 vertexPosition;
         void main()
@@ -45,17 +45,17 @@ class TestMandlebrot(Base):
 
         void main()
         {
-
+            
             // convert from pixel coordinates to math coordinates
             vec2 c = (gl_FragCoord.xy / screenSize) * viewportSize + center - viewportSize/2;
 
-            vec2 z = c;
-
+            vec2 z = c;	
+            
             float power = 0.3;
-
+                
             int i;
             int maxiter = 512;
-            for(i=0; i<maxiter; i++)
+            for(i=0; i<maxiter; i++) 
             {
                 float x = (z.x * z.x - z.y * z.y) + c.x;
                 float y = (z.y * z.x + z.x * z.y) + c.y;
@@ -66,16 +66,16 @@ class TestMandlebrot(Base):
             }
 
             float amount = i / 128.0;
-
+            
             vec3 color = hsv_to_rgb( vec3(amount + time, 1.0, 1.0) );
-
+            
             if (i < maxiter)
-                gl_FragColor = vec4(color, 1);
+                gl_FragColor = vec4(color, 1); 
             else // does not reach escape value
                 gl_FragColor = vec4(0,0,0,1);
         }
         """
-
+        
         geometry = QuadGeometry()
 
         material = Material(vsCode, fsCode)
@@ -84,7 +84,7 @@ class TestMandlebrot(Base):
         material.setUniform( "vec2", "center", [-0.5, 0] )
         material.setUniform( "vec2", "viewportSize", [4,4] )
         material.setUniform( "float", "time", 0 )
-
+       
         self.mesh = Mesh(geometry, material)
         self.scene.add(self.mesh)
 
@@ -97,9 +97,9 @@ class TestMandlebrot(Base):
         print("R       - reset to default size")
         print("C       - cycle colors")
         print("Z       - save screenshot")
-
+        
     def update(self):
-
+        
         if self.input.isKeyDown(pygame.K_ESCAPE):
             self.running = False
 
@@ -111,7 +111,7 @@ class TestMandlebrot(Base):
             print("Image saved to: " + fileName)
 
         uniformData = self.mesh.material.uniformList
-
+        
         # move around
         moveAmountX, moveAmountY = uniformData["viewportSize"].value
         scrollSpeed = 0.005
@@ -138,7 +138,7 @@ class TestMandlebrot(Base):
         # increment time variable (activates color shift)
         if self.input.isKeyPressed(pygame.K_c):
             uniformData["time"].value += 0.001
-
+            
         # reset to default view
         if self.input.isKeyDown(pygame.K_r):
             uniformData["center"].value = [-0.5, 0]
@@ -166,7 +166,7 @@ class TestMandlebrot(Base):
             uniformData["center"].value = self.moveTween.evaluate(self.moveTimer)
             if self.moveTimer >= 1:
                 self.recenter = False
-
+ 
         # print window coordinates
         if self.input.isKeyDown(pygame.K_p):
             center = uniformData["center"].value
@@ -189,6 +189,7 @@ class TestMandlebrot(Base):
             uniformData["screenSize"].value = [ newSize["width"], newSize["height"] ]
 
         self.renderer.render(self.scene, self.camera)
-
+                    
 # instantiate and run the program
 TestMandlebrot().run()
+

@@ -1,14 +1,14 @@
 from core import *
 from cameras import *
 from geometry import *
-from ..material import *
+from material import *
 from helpers import *
 
 import pygame
 import random
 
 class TestUpdatingTexture(Base):
-
+    
     def initialize(self):
 
         self.setWindowTitle('Updating Textures')
@@ -17,7 +17,7 @@ class TestUpdatingTexture(Base):
         self.renderer = Renderer()
         self.renderer.setViewportSize(800,800)
         self.renderer.setClearColor(0.25, 0.25, 0.25)
-
+        
         self.scene = Scene()
 
         self.camera = PerspectiveCamera()
@@ -29,7 +29,7 @@ class TestUpdatingTexture(Base):
         self.canvas.fill( [255,255,255] )
         self.pixels = pygame.PixelArray(self.canvas)
         self.canvasID = OpenGLUtils.initializeSurface(self.canvas)
-
+            
         geometry = QuadGeometry(width=1, height=1, widthResolution=1, heightResolution=1)
         material = SurfaceBasicMaterial(texture=self.canvasID)
         # disable filtering to see individual pixels more clearly
@@ -56,8 +56,9 @@ class TestUpdatingTexture(Base):
             self.pixels[x,y] = (r,g,b)
 
         OpenGLUtils.updateSurface(self.canvas, self.canvasID)
-
+        
         self.renderer.render(self.scene, self.camera)
-
+                    
 # instantiate and run the program
 TestUpdatingTexture().run()
+
