@@ -1,4 +1,4 @@
-from OpenGL.GL import *
+import moderngl
 
 from .Material import Material
 
@@ -14,10 +14,11 @@ class SurfaceBasicMaterial(Material):
         useVertexColors=False,
         alphaTest=0,
     ):
-        # vertex shader code
         if color is None:
             color = [1, 1, 1]
-        vsCode = """
+
+        # Fixed vertex shader - compatible with GLSL 330 core
+        vsCode = """#version 330 core
         in vec3 vertexPosition;
         in vec2 vertexUV;
         in vec3 vertexNormal;
@@ -66,8 +67,10 @@ class SurfaceBasicMaterial(Material):
         }
         """
 
-        # fragment shader code
-        fsCode = """
+        # Fixed fragment shader - compatible with GLSL 330 core
+        fsCode = """#version 330 core
+        out vec4 fragColor;
+
         uniform vec3 color;
         uniform float alpha;
 
@@ -158,11 +161,17 @@ class SurfaceBasicMaterial(Material):
                 baseColor *= vec4(vColor, 1);
 
             if ( useTexture )
-                baseColor *= texture2D(image, UV);
+                baseColor *= texture(image, UV);
 
             if ( useLight )
             {
-                Light lightArray[4] = {light0, light1, light2, light3};
+                // Fixed C-style initializer issue
+                Light lightArray[4];
+                lightArray[0] = light0;
+                lightArray[1] = light1;
+                lightArray[2] = light2;
+                lightArray[3] = light3;
+
                 vec3 totalLight = vec3(0,0,0);
                 for (int n = 0; n < 4; n++)
                     totalLight += lightCalculation( lightArray[n], position, normal );
@@ -184,24 +193,24 @@ class SurfaceBasicMaterial(Material):
                 bool facingLight = (cosAngle < -0.05);
 
                 vec3 shadowCoord = ( positionFromShadowLight.xyz / positionFromShadowLight.w ) / 2.0 + 0.5;
-                float closestDistanceToLight = texture2D(shadowMap, shadowCoord.xy).r;
+                float closestDistanceToLight = texture(shadowMap, shadowCoord.xy).r;
                 float fragmentDistanceToLight = shadowCoord.z;
                 // is this fragment in shadow?
                 if (facingLight && fragmentDistanceToLight > closestDistanceToLight + shadowBias)
                     baseColor *= vec4( shadowStrength, shadowStrength, shadowStrength, 1.0 );
             }
 
-            gl_FragColor = baseColor;
+            fragColor = baseColor;
 
-            if (gl_FragColor.a < alphaTest)
+            if (fragColor.a < alphaTest)
                 discard;
         }
         """
 
-        # initialize shaders
+        # Initialize parent with fixed shaders
         super().__init__(vsCode, fsCode)
 
-        # set default uniform values
+        # Set default uniform values
         self.setUniform("vec3", "color", color)
         self.setUniform("float", "alpha", alpha)
 
@@ -212,21 +221,20 @@ class SurfaceBasicMaterial(Material):
 
         if texture is None:
             self.setUniform("bool", "useTexture", 0)
-            self.setUniform("sampler2D", "image", -1)
+            self.setUniform("sampler2D", "image", None)
         else:
             self.setUniform("bool", "useTexture", 1)
             self.setUniform("sampler2D", "image", texture)
 
         self.setUniform("bool", "useLight", 0)
+        self.setUniform("float", "alphaTest", alphaTest)
 
-        # set default render values
-        self.drawStyle = GL_TRIANGLES
+        # Set default render values
+        self.drawStyle = moderngl.TRIANGLES
 
-        # used for wireframe rendering
+        # Used for wireframe rendering
         self.lineWidth = lineWidth
 
-        # customize draw style GL_TRIANGLES
+        # Customize draw style
         if wireframe:
-            self.fillStyle = GL_LINE
-        else:
-            self.fillStyle = GL_FILL
+            self.drawStyle = moderngl.LINES

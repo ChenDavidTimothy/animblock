@@ -1,10 +1,11 @@
 import time
 
 import glfw
-import OpenGL.GL as gl
+import moderngl
 from PIL import Image
 
 from .Input import Input
+from .OpenGLUtils import OpenGLUtils
 
 
 class Base:
@@ -27,6 +28,17 @@ class Base:
 
         # Make the window's context current
         glfw.make_context_current(self.window)
+
+        # Create ModernGL context AFTER making window context current
+        self.ctx = moderngl.create_context()
+
+        # Set the global context in OpenGLUtils
+        OpenGLUtils.ctx = self.ctx
+
+        # Enable depth testing and blending (equivalent to PyOpenGL setup)
+        self.ctx.enable(moderngl.DEPTH_TEST)
+        self.ctx.enable(moderngl.BLEND)
+        # Note: MULTISAMPLE is enabled by default in ModernGL when creating context with samples
 
         # Set up input handling
         self.input = Input()
@@ -55,7 +67,6 @@ class Base:
         self.window_width = width
         self.window_height = height
         glfw.set_window_size(self.window, width, height)
-
         self.onWindowSizeChanged(self.window, width, height)
 
     def onWindowSizeChanged(self, window, width, height):
@@ -65,8 +76,8 @@ class Base:
         # Get actual framebuffer size (important for high-DPI displays)
         fb_width, fb_height = glfw.get_framebuffer_size(window)
 
-        # Set OpenGL viewport to match the framebuffer size
-        gl.glViewport(0, 0, fb_width, fb_height)
+        # Set ModernGL viewport to match the framebuffer size
+        self.ctx.viewport = (0, 0, fb_width, fb_height)
 
         if self.renderer:
             self.renderer.setViewportSize(fb_width, fb_height)
@@ -121,8 +132,9 @@ class Base:
 
     def saveScreenshot(self, fileName):
         width, height = glfw.get_framebuffer_size(self.window)
-        buffer = gl.glReadPixels(0, 0, width, height, gl.GL_RGB, gl.GL_UNSIGNED_BYTE)
-        image = Image.frombytes("RGB", (width, height), buffer)
+        # Read from ModernGL default framebuffer
+        data = self.ctx.screen.read(components=3)
+        image = Image.frombytes("RGB", (width, height), data)
         image = image.transpose(Image.FLIP_TOP_BOTTOM)
         image.save(fileName)
         print(f"Screenshot saved as {fileName}")

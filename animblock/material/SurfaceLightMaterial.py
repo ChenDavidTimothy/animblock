@@ -1,4 +1,3 @@
-from ..core import *
 from .SurfaceBasicMaterial import SurfaceBasicMaterial
 
 
@@ -15,6 +14,8 @@ class SurfaceLightMaterial(SurfaceBasicMaterial):
     ):
         if color is None:
             color = [1, 1, 1]
+
+        # Initialize with SurfaceBasicMaterial
         super().__init__(
             color=color,
             alpha=alpha,
@@ -25,4 +26,5 @@ class SurfaceLightMaterial(SurfaceBasicMaterial):
             alphaTest=alphaTest,
         )
 
+        # Enable lighting for this material
         self.setUniform("bool", "useLight", 1)

@@ -2,7 +2,7 @@ from animblock.core import *
 from animblock.cameras import *
 from animblock.geometry import *
 from animblock.material import *
-from lights import *
+from animblock.lights import *
 from animblock.helpers import *
 
 class TestPointLight(Base):

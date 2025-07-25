@@ -1,65 +1,67 @@
 from pathlib import Path
 
-import numpy as np
-from OpenGL.GL import *
+import moderngl
 from PIL import Image
 
 
 class OpenGLUtils:
-    @staticmethod
-    def initializeShader(shaderCode, shaderType):
-        extension = "#extension GL_ARB_shading_language_420pack : require\n"
-        shaderCode = "#version 130\n" + extension + shaderCode
-
-        # create empty shader object and return reference value
-        shaderID = glCreateShader(shaderType)
-        # stores the source code in the shader
-        glShaderSource(shaderID, shaderCode)
-        # compiles source code previously stored in the shader object
-        glCompileShader(shaderID)
-
-        # queries whether shader compile was successful
-        compileSuccess = glGetShaderiv(shaderID, GL_COMPILE_STATUS)
-        if not compileSuccess:
-            # retrieve error message
-            errorMessage = glGetShaderInfoLog(shaderID)
-            # free memory used to store shader program
-            glDeleteShader(shaderID)
-            # TODO: parse str(errorMessage) for better printing
-            raise Exception(errorMessage)
-
-        # compilation was successful; return shader reference value
-        return shaderID
+    ctx = None  # ModernGL context, set by Base class
 
     @staticmethod
     def initializeShaderFromCode(vertexShaderCode, fragmentShaderCode):
-        vertexShaderID = OpenGLUtils.initializeShader(vertexShaderCode, GL_VERTEX_SHADER)
-        fragmentShaderID = OpenGLUtils.initializeShader(fragmentShaderCode, GL_FRAGMENT_SHADER)
+        """Create shader program using ModernGL"""
+        try:
+            # Fix GLSL syntax for ModernGL compatibility
+            vertexShaderCode = OpenGLUtils._fixVertexShaderSyntax(vertexShaderCode)
+            fragmentShaderCode = OpenGLUtils._fixFragmentShaderSyntax(fragmentShaderCode)
 
-        programID = glCreateProgram()
-        glAttachShader(programID, vertexShaderID)
-        glAttachShader(programID, fragmentShaderID)
-        glLinkProgram(programID)
+            program = OpenGLUtils.ctx.program(
+                vertex_shader=vertexShaderCode, fragment_shader=fragmentShaderCode
+            )
+            return program
+        except Exception as e:
+            print("=== VERTEX SHADER ===")
+            print(vertexShaderCode)
+            print("\n=== FRAGMENT SHADER ===")
+            print(fragmentShaderCode)
+            print("=====================")
+            raise Exception(f"Shader compilation failed: {e}")
 
-        return programID
-
-    """
     @staticmethod
-    def initializeShaderFromFiles(vertexShaderFileName, fragmentShaderFileName):
+    def _fixVertexShaderSyntax(code):
+        """Fix vertex shader syntax for GLSL 330 core"""
+        if "#version" not in code:
+            code = "#version 330 core\n" + code
+        return code
 
-        vertexShaderFile = open(vertexShaderFileName, mode='r')
-        vertexShaderCode = vertexShaderFile.read()
-        vertexShaderFile.close()
+    @staticmethod
+    def _fixFragmentShaderSyntax(code):
+        """Fix fragment shader syntax for GLSL 330 core"""
+        if "#version" not in code:
+            code = "#version 330 core\nout vec4 fragColor;\n" + code
 
-        fragmentShaderFile = open(fragmentShaderFileName, mode='r')
-        fragmentShaderCode = fragmentShaderFile.read()
-        fragmentShaderFile.close()
+        # Fix deprecated gl_FragColor
+        code = code.replace("gl_FragColor", "fragColor")
 
-        return OpenGLUtils.initializeShaderFromCode(vertexShaderCode, fragmentShaderCode)
-    """
+        # Fix deprecated texture2D
+        code = code.replace("texture2D(", "texture(")
+
+        # Fix C-style array initializers
+        if "Light lightArray[4] = {light0, light1, light2, light3};" in code:
+            code = code.replace(
+                "Light lightArray[4] = {light0, light1, light2, light3};",
+                """Light lightArray[4];
+                lightArray[0] = light0;
+                lightArray[1] = light1;
+                lightArray[2] = light2;
+                lightArray[3] = light3;""",
+            )
+
+        return code
 
     @staticmethod
     def initializeTexture(imageFileName):
+        """Load texture using ModernGL"""
         # Convert to Path object
         image_path = Path(imageFileName)
 
@@ -68,7 +70,7 @@ class OpenGLUtils:
             package_dir = Path(__file__).parent.parent  # animblock/core/ -> animblock/
             image_path = package_dir / imageFileName
 
-        # load image from file using Pillow
+        # Load image from file using Pillow
         image = Image.open(image_path)
         # Convert to RGBA if not already
         if image.mode != "RGBA":
@@ -77,46 +79,31 @@ class OpenGLUtils:
 
     @staticmethod
     def initializeSurface(image):
+        """Create ModernGL texture from PIL image"""
         # Flip image to match OpenGL's coordinate system
         image = image.transpose(Image.FLIP_TOP_BOTTOM)
 
         # Get dimensions and pixel data
         width, height = image.size
-        textureData = np.array(image).tobytes()
+        textureData = image.tobytes()
 
-        # Create texture
-        texid = glGenTextures(1)
-        glBindTexture(GL_TEXTURE_2D, texid)
+        # Create ModernGL texture
+        texture = OpenGLUtils.ctx.texture((width, height), 4, textureData)
 
-        # send image data to texture buffer
-        glTexImage2D(
-            GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, textureData
-        )
+        # Set filtering (equivalent to PyOpenGL settings)
+        texture.filter = (moderngl.LINEAR, moderngl.LINEAR)
+        # Note: ModernGL texture repeat is the default behavior
 
-        # generate a mipmap for use with 2d textures
-        glGenerateMipmap(GL_TEXTURE_2D)
-
-        # default: use smooth interpolated color sampling when textures magnified
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-        # use the mip map filter rather than standard filter
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR)
-
-        return texid
+        return texture
 
     @staticmethod
-    def updateSurface(image, textureID):
+    def updateSurface(image, texture):
+        """Update ModernGL texture with new image data"""
         # Flip image to match OpenGL's coordinate system
         image = image.transpose(Image.FLIP_TOP_BOTTOM)
 
-        # Get dimensions and pixel data
-        width, height = image.size
-        textureData = np.array(image).tobytes()
+        # Get pixel data
+        textureData = image.tobytes()
 
-        glBindTexture(GL_TEXTURE_2D, textureID)
-        # send image data to texture buffer
-        glTexImage2D(
-            GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, textureData
-        )
-
-        # Generate mipmaps after updating
-        glGenerateMipmap(GL_TEXTURE_2D)
+        # Update texture data
+        texture.write(textureData)

@@ -1,5 +1,6 @@
 import numpy as np
-from OpenGL.GL import *
+
+from ..core.OpenGLUtils import OpenGLUtils
 
 
 class Geometry:
@@ -8,83 +9,76 @@ class Geometry:
         self.vertexCount = None  # must be set by extending class
         self.name = name
 
-        # store vertex data bindings automatically;
-        #   index by shaderProgramID
+        # store vertex array objects for different programs
+        # index by program object id
         self.vaoData = {}
 
-    # TODO: class Attribute, to parallel class Uniform?
+        # Store ModernGL buffers
+        self.buffers = {}
 
-    # TODO: rename as "initializeAttributeData"?
-    # name: name of attribute variable in shader
-    # value: array of values
-    # type: float, vec2, vec3, vec4
     def setAttribute(self, type, name, value):
-        data = {"type": type, "name": name, "value": value, "bufferID": None}
+        """Set attribute data and create ModernGL buffer"""
+        data = {"type": type, "name": name, "value": value, "buffer": None}
         self.attributeData[name] = data
         self.processAttribute(name)
 
-    # send attribute data to a GPU buffer
     def processAttribute(self, name):
+        """Create ModernGL buffer for attribute data"""
         data = self.attributeData[name]
-        # if necessary, obtain an available buffer reference
-        if data["bufferID"] is None:
-            # return an available (unused) reference value
-            data["bufferID"] = glGenBuffers(1)
 
-        # make current bufferID active
-        glBindBuffer(GL_ARRAY_BUFFER, data["bufferID"])
-        # convert to a numpy array
-        array = np.array(data["value"]).astype(np.float32)
-        # create empty buffer object if necessary,
-        # and send data to the active buffer
-        glBufferData(GL_ARRAY_BUFFER, array.ravel(), GL_STATIC_DRAW)
+        # Convert to numpy array and create ModernGL buffer
+        array = np.array(data["value"], dtype=np.float32)
+        buffer = OpenGLUtils.ctx.buffer(array.tobytes())
 
-    # useful for changing vertex data after initial process
+        data["buffer"] = buffer
+        self.buffers[name] = buffer
+
     def updateAttribute(self, name, value):
+        """Update attribute data and ModernGL buffer"""
         self.attributeData[name]["value"] = value
         self.processAttribute(name)
 
-    # setup vertex bindings and store in VAO
-    # will be called automatically the first time getVAO is called
-    def setupVAO(self, shaderProgramID):
-        vao = glGenVertexArrays(1)
+    def setupVAO(self, program):
+        """Setup ModernGL VertexArray for given program"""
+        # Build content list for ModernGL vertex array
+        vao_content = []
 
-        # DEBUG
-        # print("Initializing VAO #", vao, "for geometry:", self.name)
+        for name, data in self.attributeData.items():
+            if data["buffer"] is None:
+                continue
 
-        # all the following vertex bindings will be stored in this VAO
-        glBindVertexArray(vao)
+            # Convert type to ModernGL format string
+            if data["type"] == "float":
+                format_str = "1f"
+            elif data["type"] == "vec2":
+                format_str = "2f"
+            elif data["type"] == "vec3":
+                format_str = "3f"
+            elif data["type"] == "vec4":
+                format_str = "4f"
+            else:
+                raise Exception(f"Unknown attribute type: {data['type']}")
 
-        # set up attribute pointers
-        for _name, data in self.attributeData.items():
-            # make current bufferID active
-            glBindBuffer(GL_ARRAY_BUFFER, data["bufferID"])
+            # Check if this attribute exists in the program
+            if data["name"] in program:
+                vao_content.append((data["buffer"], format_str, data["name"]))
 
-            attributeVarID = glGetAttribLocation(shaderProgramID, data["name"])
-            # check if this variable exists in shader program; if so, point it to currently bound bufferID.
-            if attributeVarID != -1:
-                glEnableVertexAttribArray(attributeVarID)
-                if data["type"] == "float":
-                    glVertexAttribPointer(attributeVarID, 1, GL_FLOAT, False, 0, None)
-                elif data["type"] == "vec2":
-                    glVertexAttribPointer(attributeVarID, 2, GL_FLOAT, False, 0, None)
-                elif data["type"] == "vec3":
-                    glVertexAttribPointer(attributeVarID, 3, GL_FLOAT, False, 0, None)
-                elif data["type"] == "vec4":
-                    glVertexAttribPointer(attributeVarID, 4, GL_FLOAT, False, 0, None)
-                else:
-                    raise Exception(
-                        "Attribute " + data["name"] + " has unknown type " + data["type"]
-                    )
+        # Create ModernGL VertexArray
+        if vao_content:
+            vao = OpenGLUtils.ctx.vertex_array(program, vao_content)
+        else:
+            # Create empty VAO if no valid attributes
+            vao = OpenGLUtils.ctx.vertex_array(program, [])
 
-        self.vaoData[shaderProgramID] = vao
+        # Store VAO using program object as key
+        self.vaoData[id(program)] = vao
+        return vao
 
-        # all done; unbind this VAO
-        glBindVertexArray(0)
+    def getVAO(self, program):
+        """Get ModernGL VertexArray for given program"""
+        program_id = id(program)
 
-    # get the VAO that stores vertex attribute bindings for this object
-    def getVAO(self, shaderProgramID):
-        if shaderProgramID not in self.vaoData:
-            self.setupVAO(shaderProgramID)
+        if program_id not in self.vaoData:
+            self.setupVAO(program)
 
-        return self.vaoData[shaderProgramID]
+        return self.vaoData[program_id]

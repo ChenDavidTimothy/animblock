@@ -4,7 +4,7 @@ from animblock.geometry import *
 from animblock.material import *
 from animblock.helpers import *
 from components import *
-from lights import *
+from animblock.lights import *
 from physics import *
 import random
 #NOTE: this test was for internal testing, for a more detailed explanation of what is going on

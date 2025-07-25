@@ -5,7 +5,7 @@ from animblock.material import *
 from animblock.helpers import *
 from components import *
 from physics import *
-from lights import *
+from animblock.lights import *
 import random
 
 class TestCollisionDetection(Base):

@@ -1,5 +1,3 @@
-from OpenGL.GL import *
-
 from .Object3D import Object3D
 from .Uniform import Uniform, UniformList
 
@@ -12,13 +10,10 @@ class Mesh(Object3D):
         self.visible = True
 
         self.uniformList = UniformList()
-        self.uniformList.addUniform(Uniform("mat4", "modelMatrix", self.transform))
+        self.uniformList.addUniform(Uniform("mat4", "modelMatrix", self.transform.matrix))
 
-        # casting shadow stored as a boolean
-        #   because it affects if mesh is included during rendering pass where shadow map texture is generated
+        # Shadow casting/receiving flags
         self.castShadow = False
-        # receiving shadow stored in a uniform
-        #   because it affects appearance of this object when rendered
         self.uniformList.addUniform(Uniform("bool", "receiveShadow", 0))
 
     def setCastShadow(self, state=True):
@@ -30,35 +25,28 @@ class Mesh(Object3D):
         else:
             self.uniformList.setUniformValue("receiveShadow", 0)
 
-    # passing shaderProgramID as a parameter because
-    #   usually Mesh will render with it's own Material's shader
-    #   but when doing shadow passes, uses a different shader
-    def render(self, shaderProgramID=None):
+    def render(self, program=None):
+        """Render mesh using ModernGL"""
         if not self.visible:
             return
 
-        # automatically activate vertex bindings stored in associated VAO
-        vao = self.geometry.getVAO(shaderProgramID)
-        glBindVertexArray(vao)
+        # Use material's program if no program specified
+        if program is None:
+            program = self.material.program
 
-        # update mesh uniform data here,
-        #   otherwise this code is repeated for shadow pass and standard pass in renderer class
+        # Get VAO for this program
+        vao = self.geometry.getVAO(program)
+
+        # Update mesh-specific uniforms
         self.uniformList.setUniformValue("modelMatrix", self.getWorldMatrix())
-        self.uniformList.update(shaderProgramID)
+        self.uniformList.update(program)
 
-        # update material uniform data
-        # textureNumber starts at 1 because slot 0 reserved for shadow map (if any)
-        textureNumber = 1
-        for uniform in self.material.uniformList.values():
-            if uniform.type == "sampler2D":
-                # used to activate a particular texture slot
-                uniform.textureNumber = textureNumber
-                # increment textureNumber in case additional textures are in use
-                textureNumber += 1
-            uniform.update(shaderProgramID)
+        # Update material uniforms
+        self.material.updateUniforms()
 
-        # update material render settings
+        # Update material render settings
         self.material.updateRenderSettings()
 
-        # draw the mesh
-        glDrawArrays(self.material.drawStyle, 0, self.geometry.vertexCount)
+        # Render the VAO
+        if self.geometry.vertexCount > 0:
+            vao.render(mode=self.material.drawStyle)
